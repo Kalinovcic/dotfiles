@@ -23,7 +23,7 @@ install_dotfile() {
   link_directory_path=$(dirname "$link_path")
   target_path=$(realpath "$1")
 
-  [ -e "$link_path" ] && [ "$force" = t ] && echo "WARN: removing old $link_path" && rm "$link_path"
+  [ -e "$link_path" ] && [ "$force" = t ] && rm "$link_path"
   [ -e "$link_path" ] && echo "WARN: skipping $link_path, exists" && return
 
   mkdir -p "$link_directory_path"
