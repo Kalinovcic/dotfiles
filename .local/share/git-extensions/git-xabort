@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xabort: Aborts the current rebase, merge, cherry-pick, or revert'
+  echo 'Usage: git xabort';
+  exit 1;
+}
+
+repo=$(git rev-parse --git-dir)
+[ -d "${repo}/rebase-merge" ]     && git rebase      --abort && exit
+[ -d "${repo}/rebase-apply" ]     && git rebase      --abort && exit
+[ -f "${repo}/MERGE_HEAD" ]       && git merge       --abort && exit
+[ -f "${repo}/CHERRY_PICK_HEAD" ] && git cherry-pick --abort && exit
+[ -f "${repo}/REVERT_HEAD" ]      && git revert      --abort && exit
+echo 'Nothing to abort?'

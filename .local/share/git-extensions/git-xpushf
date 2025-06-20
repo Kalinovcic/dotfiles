@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xpushf: Force-pushes the local branch if the remote reference is up to date'
+  echo 'Usage: git xpushf';
+  exit 1;
+}
+
+git push --force-with-lease

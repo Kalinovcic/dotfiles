@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xcontinue: Continues the current rebase, merge, cherry-pick, or revert'
+  echo 'Usage: git xcontinue';
+  exit 1;
+}
+
+repo=$(git rev-parse --git-dir)
+[ -d "${repo}/rebase-merge" ]     && git rebase      --continue && exit
+[ -d "${repo}/rebase-apply" ]     && git rebase      --continue && exit
+[ -f "${repo}/MERGE_HEAD" ]       && git merge       --continue && exit
+[ -f "${repo}/CHERRY_PICK_HEAD" ] && git cherry-pick --continue && exit
+[ -f "${repo}/REVERT_HEAD" ]      && git revert      --continue && exit
+echo 'Nothing to abort?'

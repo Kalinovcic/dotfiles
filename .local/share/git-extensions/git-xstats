@@ -1,0 +1,94 @@
+#!/usr/bin/bash
+set -e
+
+color_header="\e[94m"
+color_reset="\e[0m"
+
+separate_output() {
+  [ "$printed_something" ] && echo
+  printed_something=1
+}
+
+while getopts ':acfhlt-:' opt; do
+  case $opt in
+    a) print_all=1    ;;
+    c) print_commits=1 ;;
+    f) print_files=1  ;;
+    h) print_help=1   ;;
+    l) print_lines=1  ;;
+    -)
+      case "${OPTARG}" in
+        all)    print_all=1    ;;
+        commit) print_commits=1 ;;
+        files)  print_files=1  ;;
+        help)   print_help=1   ;;
+        lines)  print_lines=1  ;;
+        *)
+          echo "Invalid option --${OPTARG}" >&2
+          print_help=1
+          ;;
+      esac
+      ;;
+    \?)
+      echo "Invalid option -$OPTARG" >&2
+      print_help=1
+      ;;
+  esac
+done
+
+[ "$print_help" ] && {
+  echo 'git-xstats: Prints repository statistics'
+  echo 'Usage: git xstats [OPTION...]'
+  echo
+  echo '  -a --all       print everything'
+  echo '  -c --commits   print commit statistics [default]'
+  echo '  -f --files     print file statistics'
+  echo '  -l --lines     print line statistics'
+  echo '  -h --help      print help'
+  exit
+}
+
+([ "$print_all" ] || [ "$print_files" ]) && {
+  separate_output
+  git ls-files |
+    xargs -I{} sh -c 'ext="${1##*.}"; [ "$ext" != "$1" ] && echo "$ext"' _ {} |
+    sort | uniq |
+    while read ext; do
+      echo ".$ext|$(git ls-files "*.$ext" | xargs cat | wc -l)|$(git ls-files "*.$ext" | wc -l)"
+    done |
+    sort -t'|' -k2 -nr |
+    {
+      echo -e "${color_header}Extension|Lines|Files${color_reset}"
+      echo "(total)|$(git ls-files | xargs cat | wc -l)|$(git ls-files | wc -l)"
+      cat
+    } |
+    column -ts'|'
+}
+
+([ "$print_all" ] || [ "$print_commits" ] || [ $# -eq 0 ]) && {
+  separate_output
+  git --no-pager shortlog -s -n |
+    awk '{print substr($0, index($0,$2)) "|" $1}' |
+    {
+      echo -e "${color_header}Author|Commits${color_reset}"
+      echo "(total)|$(git rev-list --count HEAD)"
+      cat
+    } |
+    column -ts'|'
+}
+
+([ "$print_all" ] || [ "$print_lines" ]) && {
+  separate_output
+  git ls-files |
+    xargs -I{} git blame --line-porcelain {} |
+    grep '^author ' |
+    cut -d' ' -f2- |
+    sort | uniq -c | sort -nr |
+    awk '{print substr($0, index($0,$2)) "|" $1}' |
+    {
+      echo -e "${color_header}Author|Lines${color_reset}"
+      echo "(total)|$(git ls-files | xargs cat | wc -l)"
+      cat
+    } |
+    column -ts'|'
+}

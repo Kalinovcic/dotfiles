@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xamend: Amends the previous commit'
+  echo 'Usage: git xamend';
+  exit 1;
+}
+
+git commit --amend --no-edit

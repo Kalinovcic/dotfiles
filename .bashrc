@@ -1,29 +1,35 @@
-# Add ~/bin to PATH
-[ -d "$HOME/bin" ] && export PATH="$HOME/bin:$PATH"
+# Add "$HOME/bin" to PATH
+[ -d "$HOME/bin" ] &&
+  export PATH="$HOME/bin:$PATH"
 
-# CUDA stuff
-[ -d /usr/local/cuda-12.6/bin ] && export PATH="/usr/local/cuda-12.6/bin:$PATH"
+# Add "$XDG_DATA_HOME/git-extensions" to PATH
+[ -d "$XDG_DATA_HOME/git-extensions" ] &&
+  export PATH="$XDG_DATA_HOME/git-extensions:$PATH"
+
+# Add cuda to PATH
+[ -d /usr/local/cuda-12.6/bin ] &&
+  export PATH="/usr/local/cuda-12.6/bin:$PATH"
 export CUDA_CACHE_PATH="$XDG_CACHE_HOME/nv"
 
-[ -z "$BASH_VERSION" ] && return  # Stop here if we're not bash (we can use bash syntax after this line)
-[[ $- != *i* ]]        && return  # Stop here if we're not interactive (this is bash syntax, order of checks matters)
-
-# Store unlimited command history
-HISTSIZE=
-HISTFILESIZE=
-HISTTIMEFORMAT="[%F %T] "                     # Prefix history with timestamps
-HISTFILE="${XDG_STATE_HOME}/bash/history"     # Store history in a more stable location, and move it out of home
-HISTCONTROL=ignoreboth                        # Ignore duplicate lines and lines starting with space
-PROMPT_COMMAND="history -a; $PROMPT_COMMAND"  # Write history on each prompt (default is on session exit)
-shopt -s histappend                           # Append to history (default is overwriting)
+[ -z "$BASH_VERSION" ] && return              # Stop here if we're not bash
+[[ $- != *i* ]]        && return              # Stop here if we're not interactive
 
 # Set shell options
+HISTSIZE=                                     # Store unlimited command history...
+HISTFILESIZE=                                 # ...
+HISTTIMEFORMAT="[%F %T] "                     # Prefix history with timestamps
+HISTCONTROL=ignoreboth                        # Ignore duplicate lines and lines starting with space
+PROMPT_COMMAND="history -a; $PROMPT_COMMAND"  # Write history on each prompt (default is on session exit)
+HISTFILE="${XDG_STATE_HOME}/bash/history"     # Store history out of home
+mkdir -p $(dirname $HISTFILE)
+shopt -s histappend                           # Append to history (default is overwriting)
 shopt -s checkwinsize                         # Update LINES and COLUMNS after each prompt
 shopt -s globstar                             # Allow ** matching subdirectories like in glob
 shopt -s autocd                               # Enable changing directories by only typing the directory name
 
 # Enable autocompletion
-[ -f /usr/share/bash-completion/bash_completion ] && source /usr/share/bash-completion/bash_completion
+[ -f /usr/share/bash-completion/bash_completion ] &&
+  source /usr/share/bash-completion/bash_completion
 
 # Aesthetics
 PS1="\n\[\e[90m\]\w\n\$ \[\e[0m\]"
@@ -41,13 +47,16 @@ export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 # Move configuration and session files out of the home directory
 export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 export XINITRC="$XDG_CONFIG_HOME/X11/xinitrc"
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
+mkdir -p $(dirname $XINITRC)
 
-alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
+mkdir -p $(dirname $PYTHONSTARTUP)
 
 export TMUX_TEMPDIR=$XDG_RUNTIME_DIR/tmux
-mkdir -p $XDG_RUNTIME_DIR/tmux
-alias tmux="tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf"
+mkdir -p $TMUX_TEMPDIR
+alias tmux="tmux -f $TMUX_TEMPDIR/tmux.conf"
+
+alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
 
 # Aliases
 alias l="ls -lAh"

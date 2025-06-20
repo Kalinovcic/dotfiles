@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xgraph: Prints a graph showing the relationship between all branches'
+  echo 'Usage: git xgraph';
+  exit 1;
+}
+
+git xlog --graph --branches --full-history --simplify-by-decoration

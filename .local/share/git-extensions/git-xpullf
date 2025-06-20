@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xpullf: Force-pulls the tracked remote branch, overwriting the local branch'
+  echo 'Usage: git xpullf';
+  exit 1;
+}
+
+git symbolic-ref --quiet HEAD >/dev/null || {
+  echo 'HEAD is not a named branch head'
+  exit 1
+}
+
+remote="$(git remote show | head -n 1)"
+git fetch $remote
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+git show-ref --verify --quiet "refs/remotes/$remote/$branch" || {
+  echo "Remote branch $remote/$branch doesn't exist"
+  exit 1
+}
+
+message="HEAD is now at $(git log -1 --pretty=format:'%h %s' HEAD)
+Remote HEAD is $(git log -1 --pretty=format:'%h %s' $remote/$branch)
+Continue with hard reset to $remote/$branch? [y/N] "
+
+read -p "$message" confirm
+[ "$confirm" = y ] && git reset --hard $remote/$branch

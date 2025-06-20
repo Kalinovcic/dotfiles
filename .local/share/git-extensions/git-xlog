@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xlog: Pretty-prints the log'
+  echo 'Usage: git xlog';
+  exit 1;
+}
+
+git log --pretty=format:"%C(yellow)%h %cd %C(reset)%s%C(red)%d%C(blue) [%an %ad]" --date=short

@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xbranch: Pretty-prints branch information'
+  echo 'Usage: git xbranch';
+  exit 1;
+}
+
+format_parts=(
+  '%(refname:short)'                              # This field is used to compute ahead and behind
+  '%(HEAD)%(color:yellow)%(refname:short)'        # Branch name
+  '%(color:bold green)%(committerdate:relative)'  # Last commit time
+  '%(color:blue)%(subject)'                       # Last commit message
+  '%(color:magenta)%(authorname)%(color:reset)'   # Last commit author
+)
+format=$(IFS='|'; echo "${format_parts[*]}")
+remote="$(git remote show | head -n 1)"
+
+git for-each-ref --sort=-committerdate --color=always --format="$format" refs/heads |
+  while read line; do
+    branch_field=$(echo "$line" | awk -F'|' '{print $1}' | tr -d '*');
+    ahead=$(git rev-list --count "$remote/master..${branch_field}");
+    behind=$(git rev-list --count "${branch_field}..$remote/master");
+
+    all_but_first_field=$(echo "$line" | sed 's/^[^|]*|//');
+    echo "$ahead|$behind|$all_but_first_field" |
+    awk -F'|' -vOFS='|' '{$5=substr($5,1,70)}1';
+  done |
+  (echo "ahead|behind|branch|lastcommit|message|author" && cat) |
+  column -ts'|'

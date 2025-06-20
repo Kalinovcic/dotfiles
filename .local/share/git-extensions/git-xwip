@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xwip: Quickly commits all changes'
+  echo 'Usage: git xwip';
+  exit 1;
+}
+
+git add -A
+git commit -m 'wip'

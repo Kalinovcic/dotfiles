@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xadd: Adds all updated files'
+  echo 'Usage: git xadd';
+  exit 1;
+}
+
+git add -u

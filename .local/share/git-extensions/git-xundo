@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xundo: Undoes the previous commit'
+  echo 'Usage: git xundo';
+  exit 1;
+}
+
+git reset HEAD~1
