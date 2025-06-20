@@ -64,5 +64,6 @@ done
 [ -f "$HOME/.git-credentials" ] &&
   mv "$HOME/.git-credentials" "$HOME/.config/git/credentials"
 touch "$HOME/.config/git/credentials"
+chmod go-rwx "$HOME/.config/git/credentials"
 
 echo "NOTE: the 'etc' directory is not deployed by this script!"
