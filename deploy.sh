@@ -61,8 +61,8 @@ done
 # specifying the aboslute path, and therefore specifying the username. So we
 # want the XDG file to exist if it doesn't, and move the `.git-credentials` from
 # home there if it already exists.
-[ -f ~/.git-credentials ] &&
-  mv ~/.git-credentials .config/git/credentials
-touch .config/git/credentials
+[ -f "$HOME/.git-credentials" ] &&
+  mv "$HOME/.git-credentials" "$HOME/.config/git/credentials"
+touch "$HOME/.config/git/credentials"
 
 echo "NOTE: the 'etc' directory is not deployed by this script!"
