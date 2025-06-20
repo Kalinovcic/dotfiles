@@ -65,5 +65,10 @@ alias tmux="tmux -f $TMUX_TEMPDIR/tmux.conf"
 
 alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
 
+export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java"
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+export ANDROID_USER_HOME="$XDG_DATA_HOME/android"
+alias adb='HOME="$XDG_DATA_HOME/android" adb'
+
 # Aliases
 alias l="ls -lAh"
