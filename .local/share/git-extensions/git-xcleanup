@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 0 ] && {
+  echo 'git-xcleanup: Deletes all branches tracking a remote which no longer exists (with confirmation)'
+  echo 'Usage: git xcleanup';
+  exit 1;
+}
+
+remote_heads=$(git ls-remote --heads origin)
+for branch in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
+  upstream=$(git for-each-ref --format='%(upstream:short)' "refs/heads/${branch}")
+  [ -n "$upstream" ] || continue
+  grep -q "refs/heads/${upstream#*/}" <<< "$remote_heads" && continue
+  read -p "Delete branch '$branch' (tracked remote branch no longer exists)? [y/N] "   confirm &&
+  [ "$confirm" = y ] && git branch -D "$branch"
+done
