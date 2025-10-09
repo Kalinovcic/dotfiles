@@ -7,4 +7,18 @@ set -e
   exit 1;
 }
 
-git log --pretty=format:"%C(yellow)%h %cd %C(reset)%s%C(red)%d%C(blue) [%an %ad]" --date=short
+RESET="\033[0m"
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+
+prefix="+"
+master_ancestor=$(git merge-base --octopus master HEAD)
+git log '--pretty=format:%h|%H|%cd|%s|%d|%an|%ad' --date=short |
+while IFS='|' read -r hash full_hash date subject ref author auth_date; do
+  [[ "$full_hash" == "$master_ancestor" ]] && prefix=" "
+  printf "$GREEN%s$RESET $YELLOW%s %s$RESET %s$RED%s$BLUE [%s %s]$RESET\n" \
+     "$prefix" "$hash" "$date" "$subject" "$ref" "$author" "$auth_date"
+done |
+less -R
