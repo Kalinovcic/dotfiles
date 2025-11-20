@@ -7,4 +7,7 @@ set -e
   exit 1;
 }
 
-git xlog --graph --branches --full-history --simplify-by-decoration
+git log \
+  --pretty=format:"%C(yellow)%h %cd %C(reset)%s%C(red)%d%C(blue) [%an %ad]" \
+  --decorate --simplify-by-decoration --date=short --graph --branches \
+  --full-history
