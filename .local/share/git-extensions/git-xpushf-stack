@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+set -e
+
+[ $# -ne 1 ] && {
+  echo 'git-xpushf-stack: Pushes all local branches in the log until some branch is reached. The push is done using --force-with-lease.'
+  echo 'Usage: git xpushf-stack <stop_branch>';
+  exit 1;
+}
+
+for branch in $(
+  git log --pretty=%D |
+  tr ',' '\n' |
+  sed 's/HEAD -> //' |
+  awk "/$1/{exit} /\//{next} /^[[:space:]]*$/{next} {print}"); do
+  upstream=$(git for-each-ref --format='%(upstream:short)' "refs/heads/${branch}")
+  [ -z "$upstream" ] && echo "Skipping $branch, no upstream." && continue
+  IFS='/' read -r remote upstream_branch <<< "$upstream"
+  echo "Pushing $remote $branch:$upstream_branch"
+  git push --force-with-lease $remote $branch:$upstream_branch
+done
