@@ -7,4 +7,17 @@ set -e
   exit 1;
 }
 
+ask_for_confirmation() {
+  read -p "CONFIRM: You want to amend instead of continuing the $1? [y/N] " confirm
+  [ "$confirm" != y ] && echo "Aborting amend." && exit
+  true
+}
+
+repo=$(git rev-parse --git-dir)
+[ -d "${repo}/rebase-merge" ]     && ask_for_confirmation "rebase"
+[ -d "${repo}/rebase-apply" ]     && ask_for_confirmation "rebase"
+[ -f "${repo}/MERGE_HEAD" ]       && ask_for_confirmation "merge"
+[ -f "${repo}/CHERRY_PICK_HEAD" ] && ask_for_confirmation "cherry-pick"
+[ -f "${repo}/REVERT_HEAD" ]      && ask_for_confirmation "revert"
+
 git commit --amend --no-edit
