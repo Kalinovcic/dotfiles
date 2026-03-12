@@ -79,15 +79,15 @@ done
 
 ([ "$print_all" ] || [ "$print_lines" ]) && {
   separate_output
-  git ls-files |
+  ALL_FILES=$(git ls-files -z | xargs -0 -n1 git grep -I -l -e '' 2>/dev/null) || true
+  echo "$ALL_FILES" |
     xargs -I{} git blame --line-porcelain {} |
-    grep '^author ' |
-    cut -d' ' -f2- |
-    sort | uniq -c | sort -nr |
+    sed -n 's/^author //p' |
+    sort | uniq -c | sort -rn |
     awk '{print substr($0, index($0,$2)) "|" $1}' |
     {
       echo -e "${color_header}Author|Lines${color_reset}"
-      echo "(total)|$(git ls-files | xargs cat | wc -l)"
+      echo "(total)|$(echo "$ALL_FILES" | xargs cat | wc -l)"
       cat
     } |
     column -ts'|'
